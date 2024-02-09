@@ -29,10 +29,12 @@
   i18n.defaultLocale = "en_CA.UTF-8";
 
   # Configure keymap in X11
+  hardware.nvidia.modesetting.enable = true;
   services.xserver = {
     enable = true;
     desktopManager.gnome.enable = true;
     displayManager.gdm.enable = true;
+    videoDrivers = ["nvidia"];
     layout = "us";
     xkbVariant = "";
   };
