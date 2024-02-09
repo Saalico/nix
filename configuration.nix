@@ -16,6 +16,7 @@
   boot = {
     plymouth = {
       enable = true;
+      logo = ./cat.png;
     };
     loader = {
         systemd-boot.enable = true;
