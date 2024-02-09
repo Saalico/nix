@@ -6,6 +6,7 @@
   home.username = "salico";
   home.homeDirectory = "/home/salico";
 
+
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
   # introduces backwards incompatible changes.
@@ -34,6 +35,13 @@
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
+    (pkgs.writeShellScriptBin "faster" ''
+      export __NV_PRIME_RENDER_OFFLOAD=1
+      export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+      export __GLX_VENDOR_LIBRARY_NAME=nvidia
+      export __VK_LAYER_NV_optimus=NVIDIA_only
+      exec "$@"
+    '')
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -67,9 +75,23 @@
   #  /etc/profiles/per-user/salico/etc/profile.d/hm-session-vars.sh
   #
   home.sessionVariables = {
-    # EDITOR = "emacs";
+      EDITOR = "hx";
+      TERM = "wezterm";
   };
 
   # Let Home Manager install and manage itself.
-  programs.home-manager.enable = false;
+  programs = {
+   home-manager.enable = true;
+    wezterm = {
+        enable = true;
+        extraConfig = "return{enable_tab_bar = false;window_close_confirmation = 'NeverPrompt';window_decorations = 'NONE'}";
+    };
+    helix.enable = true;
+    btop.enable = true;
+    carapace = {
+      enable = true;
+      enableNushellIntegration = true;
+    };
+
+  };
 }
