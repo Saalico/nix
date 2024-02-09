@@ -2,14 +2,16 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ pkgs, lib, inputs, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      inputs.home-manager.nixosModules.default
     ];
 
+  nix.settings.experimental-features = ["nix-command" "flakes"];
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -35,8 +37,8 @@
     desktopManager.gnome.enable = true;
     displayManager.gdm.enable = true;
     videoDrivers = ["nvidia"];
-    layout = "us";
-    xkbVariant = "";
+    xkb.layout = "us";
+    xkb.variant = "";
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -86,5 +88,16 @@
     # these should be self explanatory
     gnome-maps 
   ];
+
+home-manager = {
+  # also pass inputs to home-manager modules
+  extraSpecialArgs = {inherit inputs;};
+  users = {
+    "salico" = import ./home.nix;
+  };
+};  
+    
+    
+  
   system.stateVersion = "23.11"; # Did you read the comment?
 }
