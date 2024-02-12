@@ -10,23 +10,24 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, stylix, ... }@inputs:
-    {
-          nixosConfigurations.default = nixpkgs.lib.nixosSystem {
-          specialArgs = {inherit inputs;};
-          modules = [ 
-            ./configuration.nix
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-
-            # Optionally, use home-manager.extraSpecialArgs to pass
-            # arguments to home.nix
-          }
-            stylix.nixosModules.stylix
-          ];
-        };
+  outputs = { self, nixpkgs, home-manager, stylix, ... }@inputs: {
+    nixosConfigurations.default = nixpkgs.lib.nixosSystem {
+      specialArgs = { inherit inputs; };
+      modules = [
+        ./configuration.nix
+        ./style.nix
+        home-manager.nixosModules.home-manager
+        stylix.nixosModules.stylix
+        {
+          home-manager = {
+            backupFileExtension = "bakup";
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            users.salico = import ./home.nix;
+          };
+        }
+      ];
+    };
   };
 }
 

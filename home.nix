@@ -1,11 +1,8 @@
-{ config, pkgs, ... }:
-
-{
-  # Home Manager needs a bit of information about you and the paths it should
+{pkgs, ...
+}: { # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "salico";
   home.homeDirectory = "/home/salico";
-
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -18,23 +15,12 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
+  home.sessionVariables = {
+    EDITOR = "hx";
+    TERMINAL = "blackbox";
+    SHELL = "nu";
+  };
   home.packages = [
-    # # Adds the 'hello' command to your environment. It prints a friendly
-    # # "Hello, world!" when run.
-    # pkgs.hello
-
-    # # It is sometimes useful to fine-tune packages, for example, by applying
-    # # overrides. You can do that directly here, just don't forget the
-    # # parentheses. Maybe you want to install Nerd Fonts with a limited number of
-    # # fonts?
-    # (pkgs.nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
-
-    # # You can also create simple shell scripts directly inside your
-    # # configuration. For example, this adds a command 'my-hello' to your
-    # # environment:
-    # (pkgs.writeShellScriptBin "my-hello" ''
-    #   echo "Hello, ${config.home.username}!"
-    # '')
     (pkgs.writeShellScriptBin "faster" ''
       export __NV_PRIME_RENDER_OFFLOAD=1
       export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
@@ -44,54 +30,48 @@
     '')
   ];
 
-  # Home Manager is pretty good at managing dotfiles. The primary way to manage
-  # plain files is through 'home.file'.
-  home.file = {
-    # # Building this configuration will create a copy of 'dotfiles/screenrc' in
-    # # the Nix store. Activating the configuration will then make '~/.screenrc' a
-    # # symlink to the Nix store copy.
-    # ".screenrc".source = dotfiles/screenrc;
-
-    # # You can also set the file content immediately.
-    # ".gradle/gradle.properties".text = ''
-    #   org.gradle.console=verbose
-    #   org.gradle.daemon.idletimeout=3600000
-    # '';
+  fonts.fontconfig.enable = true;
+  gtk = {
+    enable = true;
+    iconTheme.package = pkgs.papirus-icon-theme;
+    iconTheme.name = "Papirus";
   };
 
-  # Home Manager can also manage your environment variables through
-  # 'home.sessionVariables'. If you don't want to manage your shell through Home
-  # Manager then you have to manually source 'hm-session-vars.sh' located at
-  # either
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/salico/etc/profile.d/hm-session-vars.sh
-  #
-  home.sessionVariables = {
-      EDITOR = "hx";
-      TERM = "wezterm";
-  };
-
-  # Let Home Manager install and manage itself.
   programs = {
-   home-manager.enable = true;
-    wezterm = {
-        enable = true;
-        extraConfig = "return{enable_tab_bar = false;window_close_confirmation = 'NeverPrompt';window_decorations = 'NONE'}";
-    };
-    helix.enable = true;
-    btop.enable = true;
-    carapace = {
+    home-manager.enable = true;
+    starship = {
       enable = true;
       enableNushellIntegration = true;
     };
 
+    helix = { 
+      enable = true; 
+      defaultEditor = true;
+      extraPackages = [pkgs.marksman];
+    };
+    carapace = {
+      enable = true;
+      enableNushellIntegration = true;
+    };
+    nushell = {
+      enable = true;
+      configFile = {
+        text = ''
+          let $config = {
+            filesize_metric: false
+            table_mode: rounded
+            use_ls_colors: true
+          }
+        '';
+      };
+      envFile = {
+        text = ''
+          $env.config = {
+            show_banner: false,
+          }
+          $env.EDITOR = 'hx'
+        '';
+      };
+    };
   };
 }
