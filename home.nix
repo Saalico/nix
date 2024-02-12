@@ -39,6 +39,7 @@
 
   programs = {
     home-manager.enable = true;
+    gh.enable = true;
     starship = {
       enable = true;
       enableNushellIntegration = true;
