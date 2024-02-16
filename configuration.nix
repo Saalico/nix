@@ -5,20 +5,33 @@
 { config, pkgs, inputs, ... }:
 
 {
-  xdg.portal.enable = true;
+  nixpkgs.overlays = [
+  (final: prev: {
+    gnome = prev.gnome.overrideScope' (gnomeFinal: gnomePrev: {
+      mutter = gnomePrev.mutter.overrideAttrs ( old: {
+        src = pkgs.fetchgit {
+          url = "https://gitlab.gnome.org/vanvugt/mutter.git";
+          # GNOME 45: triple-buffering-v4-45
+          rev = "0b896518b2028d9c4d6ea44806d093fd33793689";
+          sha256 = "sha256-mzNy5GPlB2qkI2KEAErJQzO//uo8yO0kPQUwvGDwR4w=";
+        };
+      } );
+    });
+  })
+];
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  programs.dconf.enable = true;
+
   # Set your time zone.
   time.timeZone = "America/Toronto";
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_CA.UTF-8";
-  networking.hostName = "calico_bay"; # Define your hostname.
+  networking.hostName = "Bay"; # Define your hostname.
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -64,7 +77,7 @@
         CPU_SCALING_GOVERNOR_ON_AC = "performance";
         CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
-        CPU_ENERGY_PERF_POLICY_ON_BAT = "powersave";
+        CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
         CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
 
         CPU_MIN_PERF_ON_AC = 0;
@@ -90,6 +103,11 @@
   };
 
   hardware = {
+    opentabletdriver = {
+      enable = true;
+      daemon.enable = true;
+
+    };
     opengl = {
       enable = true;
       driSupport = true;
@@ -104,10 +122,10 @@
     };
     nvidia = {
       modesetting.enable = true;
+      nvidiaSettings = false;
       powerManagement.enable = true;
       powerManagement.finegrained = true;
       open = false;
-      nvidiaSettings = true;
       package = config.boot.kernelPackages.nvidiaPackages.stable;
       prime = {
         offload = {
@@ -118,69 +136,63 @@
         nvidiaBusId = "PCI:1:0:0";
       };
     };
-
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  programs.dconf.enable = true;
+  programs.kdeconnect = {
+    enable = true;
+    package = pkgs.gnomeExtensions.gsconnect;
+  };
   users.users.salico = {
     isNormalUser = true;
     shell = pkgs.nushell;
     description = "salico";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-
       #System Base
-      gnome.gnome-terminal
+#      gnome.gnome-terminal
+      gnome.gnome-tweaks
+      gnomeExtensions.gsconnect
+      nvidia-docker
+      nautilus-open-any-terminal
+      dconf
+      opentabletdriver
       helix
       nushell
-      chromium
+      firefox
       carapace
+      btop
+      wezterm
+      blender
+      drawing  
 
-      #Tooling
+      #Fonts
+      overpass
+  
+      #Productivity
+      ollama
+      aichat
+
+      #Fun Stuff
+      spotify
+
+      #Toolchains
       go
+      rustup
       gopls
+      rustup
+      rust-analyzer
+      nil
+      nixfmt
 
       #Git n Friends
       gh
       git
 
-      #Nix Stuff
-      nil
-      nixfmt
     ];
   };
 
-  environment.systemPackages = with pkgs; [
-    #System Base
-    gnome.gnome-terminal
-   # blackbox-terminal
-    helix
-    carapace
-    nushell
-
-    #Git and friends
-    gh
-    git
-
-    #Fonts
-    overpass
-
-    #System Utilities
-    tlp
-    dconf
-    plymouth
-    parabolic
-    gnome.gnome-tweaks
-    gnomeExtensions.just-perfection
-
-    #Toolchains
-    go
-    rustup
-    gopls
-    nil
-    rust-analyzer
-    nixfmt
-  ];
 
   environment.gnome.excludePackages = with pkgs.gnome; [
     pkgs.gnome-tour
@@ -194,7 +206,15 @@
     geary # email client
     # these should be self explanatory
     gnome-maps
+    gnome-system-monitor
   ];
+  services.gnome.gnome-settings-daemon.enable = true;
+
+  environment.variables = {
+     EDITOR = "hx";
+     VISUAL = "hx";
+     TERMINAL = "wezterm";
+   };
 
   system.stateVersion = "23.11"; # Did you read the comment?
 }

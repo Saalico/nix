@@ -1,0 +1,16 @@
+:quit
+doubleUs 10 30
+:l babyHaskell.hs
+doubleUs
+doubleMe 23
+doubleMe 10
+:l babyHaskell.hs
+:l babyHaskell.h
+:quit
+quit
+:?
+:/
+ls
+exit
+ls
+2 + 15

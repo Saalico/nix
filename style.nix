@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 let
-  theme = "${pkgs.base16-schemes}/share/themes/spaceduck.yaml";
+  theme = "${pkgs.base16-schemes}/share/themes/rose-pine.yaml";
   wallpaper = ./wallpaper.png;
 in {
   stylix = {

@@ -21,7 +21,6 @@
         {
           home-manager = {
             backupFileExtension = "bakup";
-            useGlobalPkgs = true;
             useUserPackages = true;
             users.salico = import ./home.nix;
           };
