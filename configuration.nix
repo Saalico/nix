@@ -2,34 +2,15 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }:
-
-{
-  nixpkgs.overlays = [
-  (final: prev: {
-    gnome = prev.gnome.overrideScope' (gnomeFinal: gnomePrev: {
-      mutter = gnomePrev.mutter.overrideAttrs ( old: {
-        src = pkgs.fetchgit {
-          url = "https://gitlab.gnome.org/vanvugt/mutter.git";
-          # GNOME 45: triple-buffering-v4-45
-          rev = "0b896518b2028d9c4d6ea44806d093fd33793689";
-          sha256 = "sha256-mzNy5GPlB2qkI2KEAErJQzO//uo8yO0kPQUwvGDwR4w=";
-        };
-      } );
-    });
-  })
-];
+{ config, pkgs, inputs, ... }: {
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # Set your time zone.
-  time.timeZone = "America/Toronto";
-
   # Select internationalisation properties.
+  time.timeZone = "America/Toronto";
   i18n.defaultLocale = "en_CA.UTF-8";
   networking.hostName = "Bay"; # Define your hostname.
 
@@ -47,30 +28,44 @@
   # Enable sound with pipewire.
   sound.enable = true;
   hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
+  security = {
+    polkit.enable = true;
+    rtkit.enable = true;
+    pam.services.swaylock = {}; 
   };
 
   # Bootloader.
   boot = {
-    plymouth = { enable = true; };
+    kernelParams = [ "quiet" "udev.log_level=3" "nvidia.NVreg_PreserveVideoMemoryAllocations=1"];
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
     consoleLogLevel = 0;
-    kernelParams = [ "quiet" "udev.log_level=3" ];
+    plymouth.enable = true;
     initrd.verbose = false;
   };
 
-  # Configure keymap in X11
   services = {
     xserver.excludePackages = [ pkgs.xterm ];
+    getty.autologinUser = "salico";
     power-profiles-daemon.enable = false;
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+    };
+   greetd = {
+    enable = true;
+    settings = rec {
+      initial_session = {
+        command = "${pkgs.hyprland}/bin/Hyprland";
+        user = "salico";
+      };
+        default_session = initial_session;
+    };
+    };    
     tlp = {
       enable = true;
       settings = {
@@ -83,22 +78,12 @@
         CPU_MIN_PERF_ON_AC = 0;
         CPU_MAX_PERF_ON_AC = 100;
         CPU_MIN_PERF_ON_BAT = 0;
-        CPU_MAX_PERF_ON_BAT = 35;
+        CPU_MAX_PERF_ON_BAT = 40;
 
         #Optional helps save long term battery health
         START_CHARGE_THRESH_BAT0 = 40; # 40 and bellow it starts to charge
         STOP_CHARGE_THRESH_BAT0 = 100; # 80 and above it stops charging
       };
-    };
-    xserver = {
-      enable = true;
-      desktopManager = {
-        gnome.enable = true;
-      };
-      displayManager.gdm.enable = true;
-      videoDrivers = [ "nvidia" ];
-      xkb.layout = "us";
-      xkb.variant = "";
     };
   };
 
@@ -138,41 +123,77 @@
     };
   };
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  programs.dconf.enable = true;
-  programs.kdeconnect = {
-    enable = true;
-    package = pkgs.gnomeExtensions.gsconnect;
-  };
   users.users.salico = {
     isNormalUser = true;
     shell = pkgs.nushell;
     description = "salico";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
+
       #System Base
-#      gnome.gnome-terminal
-      gnome.gnome-tweaks
-      gnomeExtensions.gsconnect
-      nvidia-docker
-      nautilus-open-any-terminal
-      dconf
-      opentabletdriver
+      btop
+      carapace
+      firefox
       helix
       nushell
-      firefox
-      carapace
-      btop
+      plymouth
+      powertop
+      tlp
+      systemd
       wezterm
-      blender
-      drawing  
+      zathura
 
-      #Fonts
-      overpass
-  
-      #Productivity
+      #Wayland
+      wayland
+      cliphist
+      hyprland
+      hyprland-protocols
+      xdg-desktop-portal-hyprland
+      waybar
+      hyprnome
+      swww
+      eww
+      eww-wayland
+      pamixer
+      brightnessctl
+
+
+      #config helpers
+      gtk4
+      gtk3
+      gtk2
+      gtk-layer-shell
+      swaylock
+      polkit_gnome
+      dconf
+      nautilus-open-any-terminal
+      dconf2nix
+
+      #Drawing Stuff
+      opentabletdriver
+      blender
+      drawing
+
+      #AI Stuff
       ollama
       aichat
+      nvidia-docker
+
+      #Fonts
+        cantarell-fonts      
+  overpass
+  liberation_ttf
+  nerdfonts
+  fira-code
+  fira-code-symbols
+  font-awesome
+  font-awesome_4
+  font-awesome_5
+  mplus-outline-fonts.githubRelease
+  dina-font
+  proggyfonts
+
+
 
       #Fun Stuff
       spotify
@@ -192,29 +213,41 @@
 
     ];
   };
-
-
-  environment.gnome.excludePackages = with pkgs.gnome; [
-    pkgs.gnome-tour
-    pkgs.gnome-connections
-    pkgs.gnome-console
-    pkgs.gedit # text editor
-
-    epiphany # web browser
-    simple-scan # document scanner
-    yelp # help viewer
-    geary # email client
-    # these should be self explanatory
-    gnome-maps
-    gnome-system-monitor
-  ];
-  services.gnome.gnome-settings-daemon.enable = true;
+  system.fsPackages = [ pkgs.bindfs ];
+  fileSystems = let
+    mkRoSymBind = path: {
+      device = path;
+      fsType = "fuse.bindfs";
+      options = [ "ro" "resolve-symlinks" "x-gvfs-hide" ];
+    };
+    aggregatedIcons = pkgs.buildEnv {
+      name = "system-icons";
+      paths = with pkgs; [
+        #libsForQt5.breeze-qt5  # for plasma
+        gnome.gnome-themes-extra
+      ];
+      pathsToLink = [ "/share/icons" ];
+    };
+    aggregatedFonts = pkgs.buildEnv {
+      name = "system-fonts";
+      paths = config.fonts.packages;
+      pathsToLink = [ "/share/fonts" ];
+    };
+  in {
+    "/usr/share/icons" = mkRoSymBind "${aggregatedIcons}/share/icons";
+    "/usr/local/share/fonts" = mkRoSymBind "${aggregatedFonts}/share/fonts";
+  };
 
   environment.variables = {
-     EDITOR = "hx";
-     VISUAL = "hx";
-     TERMINAL = "wezterm";
-   };
+    EDITOR = "hx";
+    VISUAL = "hx";
+    TERMINAL = "wezterm";
+    NIXOS_OZONE_WL = "1";
+  };
 
+  programs.hyprland = {
+    enable = true;
+    package = inputs.hyprland.packages.${pkgs.system}.hyprland;
+  };
   system.stateVersion = "23.11"; # Did you read the comment?
 }
