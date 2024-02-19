@@ -39,32 +39,13 @@
     source = ${./hyprland.conf}
   '';
 
-  xdg.portal = {
-    enable = true;
-    xdgOpenUsePortal = true;
-    config = {
-      common.default = ["gtk"];
-      hyprland.default = ["gtk" "hyprland"];
-    };
-
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gtk
-    ];
-  };
-
   programs = {
     home-manager.enable = true;
     gh.enable = true;
     btop.enable = true;
-    eww = {
-      enable = true;
-      configDir = ./eww;
-    };
-    swaylock.enable = true;
     wezterm.enable = true;
     firefox = {
       enable = true;
-      nativeMessagingHosts = [ pkgs.gnomeExtensions.gsconnect ];
     };
     starship = {
       enable = true;

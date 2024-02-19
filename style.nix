@@ -7,11 +7,15 @@ in {
   stylix = {
     autoEnable = true;
     polarity = "dark";
-    cursor.size = 36;
+    cursor.size = 32;
     opacity.terminal = 0.92;
     homeManagerIntegration.autoImport = true;
     homeManagerIntegration.followSystem = true;
-    targets.plymouth.enable = true;
+    targets.plymouth = {
+      enable = true;
+      logo = /etc/nixos/wallpaper.png;
+      logoAnimated = false;
+    };
     targets.gtk.enable = true;
     image = wallpaper;
     base16Scheme = theme;
