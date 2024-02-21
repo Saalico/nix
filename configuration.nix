@@ -5,20 +5,21 @@
 { config, pkgs, inputs, ... }:
 
 {
+  documentation.nixos.enable = false;
   nixpkgs.overlays = [
-  (final: prev: {
-    gnome = prev.gnome.overrideScope' (gnomeFinal: gnomePrev: {
-      mutter = gnomePrev.mutter.overrideAttrs ( old: {
-        src = pkgs.fetchgit {
-          url = "https://gitlab.gnome.org/vanvugt/mutter.git";
-          # GNOME 45: triple-buffering-v4-45
-          rev = "0b896518b2028d9c4d6ea44806d093fd33793689";
-          sha256 = "sha256-mzNy5GPlB2qkI2KEAErJQzO//uo8yO0kPQUwvGDwR4w=";
-        };
-      } );
-    });
-  })
-];
+    (final: prev: {
+      gnome = prev.gnome.overrideScope' (gnomeFinal: gnomePrev: {
+        mutter = gnomePrev.mutter.overrideAttrs (old: {
+          src = pkgs.fetchgit {
+            url = "https://gitlab.gnome.org/vanvugt/mutter.git";
+            # GNOME 45: triple-buffering-v4-45
+            rev = "0b896518b2028d9c4d6ea44806d093fd33793689";
+            sha256 = "sha256-mzNy5GPlB2qkI2KEAErJQzO//uo8yO0kPQUwvGDwR4w=";
+          };
+        });
+      });
+    })
+  ];
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     inputs.home-manager.nixosModules.home-manager
@@ -46,14 +47,7 @@
 
   # Enable sound with pipewire.
   sound.enable = true;
-  hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
 
   # Bootloader.
   boot = {
@@ -69,8 +63,11 @@
 
   # Configure keymap in X11
   services = {
-    xserver.excludePackages = [ pkgs.xterm ];
     power-profiles-daemon.enable = false;
+    gnome = {
+      gnome-online-accounts.enable = true;
+      gnome-settings-daemon.enable = true;
+    };
     tlp = {
       enable = true;
       settings = {
@@ -92,13 +89,20 @@
     };
     xserver = {
       enable = true;
-      desktopManager = {
-        gnome.enable = true;
-      };
+      excludePackages = [ pkgs.xterm ];
+      displayManager.autoLogin.user = "salico";
+      desktopManager = { gnome.enable = true; };
+      wacom.enable = false;
       displayManager.gdm.enable = true;
       videoDrivers = [ "nvidia" ];
       xkb.layout = "us";
       xkb.variant = "";
+    };
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
     };
   };
 
@@ -120,6 +124,7 @@
         libvdpau-va-gl
       ];
     };
+    pulseaudio.enable = false;
     nvidia = {
       modesetting.enable = true;
       nvidiaSettings = false;
@@ -138,83 +143,30 @@
     };
   };
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  programs.dconf.enable = true;
-  programs.kdeconnect = {
+  programs.steam = {
     enable = true;
-    package = pkgs.gnomeExtensions.gsconnect;
+    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
   };
-  users.users.salico = {
-    isNormalUser = true;
-    shell = pkgs.nushell;
-    description = "salico";
-    extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      #System Base
-#      gnome.gnome-terminal
-      gnome.gnome-tweaks
-      gnomeExtensions.gsconnect
-      nvidia-docker
-      nautilus-open-any-terminal
-      dconf
-      opentabletdriver
-      helix
-      nushell
-      firefox
-      carapace
-      btop
-      wezterm
-      blender
-      drawing  
-
-      #Fonts
-      overpass
-  
-      #Productivity
-      ollama
-      aichat
-
-      #Fun Stuff
-      spotify
-
-      #Toolchains
-      go
-      rustup
-      gopls
-      rustup
-      rust-analyzer
-      nil
-      nixfmt
-
-      #Git n Friends
-      gh
-      git
-
-    ];
-  };
-
-
   environment.gnome.excludePackages = with pkgs.gnome; [
     pkgs.gnome-tour
     pkgs.gnome-connections
     pkgs.gnome-console
-    pkgs.gedit # text editor
-
+    pkgs.gedit
     epiphany # web browser
     simple-scan # document scanner
     yelp # help viewer
     geary # email client
     # these should be self explanatory
+    gnome-music
     gnome-maps
     gnome-system-monitor
   ];
-  services.gnome.gnome-settings-daemon.enable = true;
-
   environment.variables = {
-     EDITOR = "hx";
-     VISUAL = "hx";
-     TERMINAL = "wezterm";
-   };
+    EDITOR = "hx";
+    VISUAL = "hx";
+  };
 
   system.stateVersion = "23.11"; # Did you read the comment?
 }
+    

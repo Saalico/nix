@@ -1,20 +1,21 @@
-{ pkgs, ... }:
-
+{ config, pkgs, ... }:
 let
-  theme = "${pkgs.base16-schemes}/share/themes/rose-pine.yaml";
+  theme = "${pkgs.base16-schemes}/share/themes/rose-pine-moon.yaml";
   wallpaper = ./wallpaper.png;
 in {
   stylix = {
     autoEnable = true;
     polarity = "dark";
     cursor.size = 36;
-    opacity.terminal = 0.95;
+    opacity.terminal = 0.92;
     homeManagerIntegration.autoImport = true;
     homeManagerIntegration.followSystem = true;
-    targets.plymouth.logo = ./cat.png;
-    targets.plymouth.logoAnimated = false;
-    targets.gnome.enable = true;
-    targets.gtk.enable = true;
+    targets = {
+      plymouth.logo = ./wallpaper.png;
+      plymouth.logoAnimated = false;
+      gnome.enable = true;
+      gtk.enable = true;
+    };
     image = wallpaper;
     base16Scheme = theme;
   };

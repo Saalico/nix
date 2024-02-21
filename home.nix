@@ -1,11 +1,9 @@
-{pkgs, ...
-}: { 
+{ config, pkgs, ... }: {
   home.username = "salico";
   home.homeDirectory = "/home/salico";
   home.stateVersion = "23.11"; # Please read the comment before changing.
   home.sessionVariables = {
     EDITOR = "hx";
-    TERMINAL = "wezterm";
     SHELL = "nu";
   };
   home.packages = [
@@ -19,6 +17,7 @@
   ];
 
   fonts.fontconfig.enable = true;
+  services.clipman.enable = true;
   gtk = {
     enable = true;
     iconTheme.package = pkgs.papirus-icon-theme;
@@ -26,31 +25,45 @@
   };
   xdg.portal = {
     enable = true;
-    extraPortals = [pkgs.xdg-desktop-portal-gtk];
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
     config.common.default = "*";
   };
 
+  dconf.settings = {
+    "org/gnome/desktop/default-applications/terminal" = {
+      exec = "${pkgs.wezterm}/bin/wezterm";
+      exec-arg = "start";
+    };
+  };
   programs = {
     home-manager.enable = true;
     gh.enable = true;
-    btop.enable = true;
-    wezterm.enable = true;
+    btop ={
+      enable = true;
+      settings = {
+        color_theme = "stylix";
+        theme_background = false;
+      };
+    };
     firefox = {
       enable = true;
-      nativeMessagingHosts = [pkgs.gnomeExtensions.gsconnect];
+      nativeMessagingHosts = [ pkgs.gnomeExtensions.gsconnect ];
     };
     starship = {
       enable = true;
       enableNushellIntegration = true;
     };
-    helix = { 
-      enable = true; 
+    helix = {
+      enable = true;
       defaultEditor = true;
-      extraPackages = [pkgs.marksman];
+      extraPackages = [ pkgs.marksman ];
     };
     carapace = {
       enable = true;
       enableNushellIntegration = true;
+    };
+    wezterm = {
+      enable = true;
     };
     nushell = {
       enable = true;
@@ -72,8 +85,5 @@
         '';
       };
     };
-    
-
-
   };
 }
