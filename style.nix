@@ -13,6 +13,7 @@ in {
     targets = {
       plymouth.logo = ./wallpaper.png;
       plymouth.logoAnimated = false;
+      nixvim.enable = true;
       gnome.enable = true;
       gtk.enable = true;
     };

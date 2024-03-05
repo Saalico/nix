@@ -6,34 +6,46 @@
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       #System Base
-      gnome.gnome-terminal
-      gnome.gnome-tweaks
-      gnomeExtensions.gsconnect
-      gnomeExtensions.pano
-      wayland
-      wl-clipboard
+      carapace
+      chromium
       clipman
-      nvidia-docker
       dconf
-      opentabletdriver
-      cura
+      firefox
       helix
       nushell
-      firefox
-      carapace
+      opentabletdriver
+      wayland
+      libsecret
+      wl-clipboard
+
+      gnome.gnome-terminal
+      gnome.gnome-tweaks
+      gnomeExtensions.blur-my-shell
+      gnomeExtensions.just-perfection
+      gnomeExtensions.gsconnect
+
+      #System Management/Exploration
       btop
-      blender
-      drawing
+      r2modman
+      yazi
+      zoxide
+      zellij
+
+      #Utilities
+      mods
 
       #Fonts
       overpass
 
       #Productivity
-      ollama
-      aichat
+      cura
+      blender
+      drawing
 
       #Fun Stuff
       spotify
+      yuzu-mainline
+      yuzu-early-access
 
       #Toolchains
       go
@@ -47,7 +59,6 @@
       #Git n Friends
       gh
       git
-
     ];
   };
 }

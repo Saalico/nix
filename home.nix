@@ -1,11 +1,9 @@
-{ config, pkgs, ... }: {
+{ config, pkgs, ... }:
+let OPENAI_API_KEY = import /etc/secrets/OPENAI_API_KEY;
+in {
   home.username = "salico";
   home.homeDirectory = "/home/salico";
   home.stateVersion = "23.11"; # Please read the comment before changing.
-  home.sessionVariables = {
-    EDITOR = "hx";
-    SHELL = "nu";
-  };
   home.packages = [
     (pkgs.writeShellScriptBin "faster" ''
       export __NV_PRIME_RENDER_OFFLOAD=1
@@ -38,7 +36,7 @@
   programs = {
     home-manager.enable = true;
     gh.enable = true;
-    btop ={
+    btop = {
       enable = true;
       settings = {
         color_theme = "stylix";
@@ -57,14 +55,51 @@
       enable = true;
       defaultEditor = true;
       extraPackages = [ pkgs.marksman ];
+      editor = {
+        line-number = "relative";
+        mouse = false;
+        lsp.display-messages = true;
+        shell = ["nu" "exec"];
+        cursorline = true;
+        autosave = true;
+        colormodes = true;
+        autopairs = false;
+        indent-guides = {
+          render = true;
+        };
+        cursor-shape = {
+          insert = "bar";
+          normal = "block";
+          select = "underline";
+        };
+      };
+      lsp = {
+        display-messages = true;
+        display-inlay-hints = true;
+      };
+      keys.normal = {
+        space.space = "file_picker";
+        space.w = ":w";
+        space.q = ":q";
+        esc = [ "collapse_selection" "keep_primary_selection" ];
+      };
     };
+    neovim = { enable = true; };
     carapace = {
       enable = true;
       enableNushellIntegration = true;
     };
     wezterm = {
       enable = true;
+      extraConfig = ''
+        return {
+          default_prog = {"zellij"},
+          window_close_confirmation = 'NeverPrompt',
+          enable_tab_bar = false
+        }
+      '';
     };
+    zellij = { enable = true; };
     nushell = {
       enable = true;
       configFile = {
@@ -79,11 +114,25 @@
       envFile = {
         text = ''
           $env.config = {
-            show_banner: false,
+            show_banner: false
           }
-          $env.EDITOR = 'hx'
+          $env.EDITOR = hx
+          $env.TERMINAL = wezterm
+          $env.OPENAI_API_KEY = ${OPENAI_API_KEY}
         '';
       };
     };
+    bash = {
+      enable = true;
+      bashrcExtra = ''
+        export XDG_DATA_HOME="$HOME/.local/share"
+      '';
+    };
+  };
+  home.sessionVariables = {
+    EDITOR = "hx";
+    SHELL = "nu";
+    TERMINAL = "wezterm";
   };
 }
+

@@ -17,8 +17,8 @@
         ./programs.nix
         ./configuration.nix
         ./style.nix
-        home-manager.nixosModules.home-manager
         stylix.nixosModules.stylix
+        home-manager.nixosModules.home-manager
         {
           home-manager = {
             backupFileExtension = "bakup";
