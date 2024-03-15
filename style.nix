@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 let
-  theme = "${pkgs.base16-schemes}/share/themes/rose-pine-moon.yaml";
+  theme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
   wallpaper = ./wallpaper.png;
 in {
   stylix = {
@@ -11,10 +11,8 @@ in {
     homeManagerIntegration.autoImport = true;
     homeManagerIntegration.followSystem = true;
     targets = {
-      plymouth.logo = ./wallpaper.png;
-      plymouth.logoAnimated = false;
-      nixvim.enable = true;
-      gnome.enable = true;
+      plymouth.enable = true;
+      plymouth.blackBackground = true;
       gtk.enable = true;
     };
     image = wallpaper;

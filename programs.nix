@@ -6,59 +6,66 @@
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       #System Base
+      bluez
       carapace
-      chromium
       clipman
       dconf
       firefox
       helix
       nushell
       opentabletdriver
-      wayland
-      libsecret
+      pciutils
+      overskride
       wl-clipboard
 
-      gnome.gnome-terminal
-      gnome.gnome-tweaks
-      gnomeExtensions.blur-my-shell
-      gnomeExtensions.just-perfection
-      gnomeExtensions.gsconnect
+      #Hyprland
+      wayland
+      gtk3
+      hyprlock
+      hypridle
+      nwg-panel
+      nwg-drawer
+      wlr-randr
+      mako
+      waybar
+      swww
 
       #System Management/Exploration
       btop
       r2modman
       yazi
       zoxide
-      zellij
 
       #Utilities
-      mods
+      helix-gpt
+      marksman
 
       #Fonts
-      overpass
 
       #Productivity
       cura
+      # orca-slicer
       blender
       drawing
 
       #Fun Stuff
       spotify
-      yuzu-mainline
-      yuzu-early-access
-
-      #Toolchains
-      go
-      rustup
-      gopls
-      rustup
-      rust-analyzer
-      nil
-      nixfmt
+      minecraft
 
       #Git n Friends
       gh
       git
     ];
   };
+  environment.systemPackages = with pkgs; [
+    udiskie
+    nil
+    lldb
+    nixfmt
+    rustup
+    steam
+    steam-run
+    steamPackages.steam-runtime
+  ];
 }
+

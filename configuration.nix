@@ -6,38 +6,16 @@
 
 {
   documentation.nixos.enable = false;
-  nixpkgs.overlays = [
-    (final: prev: {
-      gnome = prev.gnome.overrideScope' (gnomeFinal: gnomePrev: {
-        mutter = gnomePrev.mutter.overrideAttrs (old: {
-          src = pkgs.fetchgit {
-            url = "https://gitlab.gnome.org/vanvugt/mutter.git";
-            # GNOME 45: triple-buffering-v4-45
-            rev = "0b896518b2028d9c4d6ea44806d093fd33793689";
-            sha256 = "sha256-mzNy5GPlB2qkI2KEAErJQzO//uo8yO0kPQUwvGDwR4w=";
-          };
-        });
-      });
-    })
-  ];
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # Set your time zone.
   time.timeZone = "America/Toronto";
-
-  # Select internationalisation properties.
   i18n.defaultLocale = "en_CA.UTF-8";
   networking.hostName = "Bay"; # Define your hostname.
-
-  # Enable networking
   networking.networkmanager.enable = true;
-
-  # Allow unfree packages
   nixpkgs.config = {
     allowUnfree = true;
     packageOverrides = pkgs: {
@@ -57,17 +35,19 @@
       efi.canTouchEfiVariables = true;
     };
     consoleLogLevel = 0;
-    kernelParams = [ "quiet" "udev.log_level=3" ];
+    kernelParams = [
+      "quiet"
+      "udev.log_level=3"
+      "nvidia.NVreg_PreserveVideoMemoryAllocations=1"
+    ];
     initrd.verbose = false;
   };
-
   # Configure keymap in X11
   services = {
+    udisks2.enable = true;
+    devmon.enable = true;
+    gvfs.enable = true;
     power-profiles-daemon.enable = false;
-    gnome = {
-      gnome-online-accounts.enable = true;
-      gnome-settings-daemon.enable = true;
-    };
     tlp = {
       enable = true;
       settings = {
@@ -80,7 +60,7 @@
         CPU_MIN_PERF_ON_AC = 0;
         CPU_MAX_PERF_ON_AC = 100;
         CPU_MIN_PERF_ON_BAT = 0;
-        CPU_MAX_PERF_ON_BAT = 35;
+        CPU_MAX_PERF_ON_BAT = 25;
 
         #Optional helps save long term battery health
         START_CHARGE_THRESH_BAT0 = 40; # 40 and bellow it starts to charge
@@ -91,9 +71,20 @@
       enable = true;
       excludePackages = [ pkgs.xterm ];
       displayManager.autoLogin.user = "salico";
-      desktopManager = { gnome.enable = true; };
       wacom.enable = false;
-      displayManager.gdm.enable = true;
+      displayManager = {
+        sddm = {
+          enable = true;
+          wayland.enable = true;
+          settings = {
+            Autologin = {
+              Session = "hyprland";
+              User = "salico";
+            };
+          };
+          autoLogin.relogin = true;
+        };
+      };
       videoDrivers = [ "nvidia" ];
       xkb.layout = "us";
       xkb.variant = "";
@@ -125,9 +116,10 @@
       ];
     };
     pulseaudio.enable = false;
+    bluetooth.enable = true;
     nvidia = {
       modesetting.enable = true;
-      nvidiaSettings = false;
+      nvidiaSettings = true;
       powerManagement.enable = true;
       powerManagement.finegrained = true;
       open = false;
@@ -142,32 +134,63 @@
       };
     };
   };
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall =
-      true; # Open ports in the firewall for Steam Remote Play
-    dedicatedServer.openFirewall =
-      true; # Open ports in the firewall for Source Dedicated Server
+  programs = {
+    light.enable = true;
+    hyprland = {
+      enable = true;
+      package = inputs.hyprland.packages.${pkgs.system}.hyprland;
+    };
+    steam = {
+      enable = true;
+      remotePlay.openFirewall =
+        true; # Open ports in the firewall for Steam Remote Play
+      dedicatedServer.openFirewall =
+        true; # Open ports in the firewall for Source Dedicated Server
+    };
   };
-  environment.gnome.excludePackages = with pkgs.gnome; [
-    pkgs.gnome-tour
-    pkgs.gnome-connections
-    pkgs.gnome-console
-    pkgs.gedit
-    epiphany # web browser
-    simple-scan # document scanner
-    yelp # help viewer
-    geary # email client
-    # these should be self explanatory
-    gnome-music
-    gnome-maps
-    gnome-system-monitor
-  ];
-  environment.variables = {
+  environment.sessionVariables = {
     EDITOR = "hx";
     VISUAL = "hx";
+    TERMINAL = "wezterm";
+  };
+  fonts.packages = with pkgs; [
+    font-awesome
+    noto-fonts
+    noto-fonts-cjk
+    noto-fonts-emoji
+    liberation_ttf
+    fira-code
+    fira-code-symbols
+    mplus-outline-fonts.githubRelease
+    dina-font
+    proggyfonts
+  ];
+
+  specialisation = {
+    nomad.configuration = {
+      system.nixos.tags = [ "nomad" ];
+      boot.extraModprobeConfig = ''
+        blacklist nouveau
+        options nouveau modeset=0
+      '';
+
+      services.udev.extraRules = ''
+        # Remove NVIDIA USB xHCI Host Controller devices, if present
+        ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{power/control}="auto", ATTR{remove}="1"
+        # Remove NVIDIA USB Type-C UCSI devices, if present
+        ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c8000", ATTR{power/control}="auto", ATTR{remove}="1"
+        # Remove NVIDIA Audio devices, if present
+        ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{power/control}="auto", ATTR{remove}="1"
+        # Remove NVIDIA VGA/3D controller devices
+        ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{power/control}="auto", ATTR{remove}="1"
+      '';
+      boot.blacklistedKernelModules =
+        [ "nouveau" "nvidia" "nvidia_drm" "nvidia_modeset" ];
+    };
   };
 
+  #DON'T CHANGE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   system.stateVersion = "23.11"; # Did you read the comment?
+  #DON'T CHANGE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
