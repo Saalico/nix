@@ -1,7 +1,5 @@
-{ pkgs, inputs, ... }:
-let
-  OPENAI_API_KEY = import /etc/secrets/OPENAI_API_KEY;
-  Wallpaper = /etc/nixos/wallpaper.png;
+{ lib, pkgs, ... }:
+let OPENAI_API_KEY = import /etc/secrets/OPENAI_API_KEY;
 in {
   home.username = "salico";
   home.homeDirectory = "/home/salico";
@@ -17,38 +15,21 @@ in {
     '')
   ];
   home.sessionVariables = {
-    HYPRLAND_NO_SD_NOTIFY = 1;
-    WLR_DRM_NO_ATOMIC = 1;
-    __GL_VRR_ALLOWED = 2;
-    __GL_GSYNC_ALLOWED = 0;
-    XDG_CURRENT_DESKTOP = "Hyprland";
-    XDG_SESSION_TYPE = "wayland";
-    XDG_SESSION_DESKTOP = "Hyprland";
-
     EDITOR = "hx";
     SHELL = "nu";
     TERMINAL = "wezterm";
   };
   fonts.fontconfig.enable = true;
-  services = {
-    clipman.enable = true;
-    mako = {
-      enable = true;
-      anchor = "top-center";
-      borderRadius = 5;
-
-    };
+  home.pointerCursor = lib.mkForce {
+    name = "rose-pine-cursor";
+    gtk.enable = true;
+    package = pkgs.rose-pine-cursor;
+    size = 36;
   };
   gtk = {
     enable = true;
     iconTheme.package = pkgs.papirus-icon-theme;
     iconTheme.name = "Papirus";
-  };
-  dconf.settings = {
-    "org/gnome/desktop/default-applications/terminal" = {
-      exec = "${pkgs.wezterm}/bin/wezterm";
-      exec-arg = "start";
-    };
   };
   stylix = {
     autoEnable = true;
@@ -67,10 +48,7 @@ in {
         theme_background = false;
       };
     };
-    firefox = {
-      enable = true;
-      nativeMessagingHosts = [ pkgs.gnomeExtensions.gsconnect ];
-    };
+    brave = { enable = true; };
     starship = {
       enable = true;
       enableNushellIntegration = true;
@@ -100,6 +78,11 @@ in {
           auto-save = true;
           color-modes = true;
           auto-pairs = false;
+          text-width = 60;
+          soft-wrap = {
+            enable = true;
+            max-wrap = 10;
+          };
           indent-guides = {
             render = true;
             skip-levels = 1;
@@ -135,7 +118,9 @@ in {
       extraConfig = ''
         return {
           window_close_confirmation = 'NeverPrompt',
-          enable_tab_bar = false
+          enable_tab_bar = false,
+          front_end = "WebGpu",
+          webgpu_power_preference = "LowPower"
         }
       '';
     };
@@ -167,125 +152,6 @@ in {
       bashrcExtra = ''
         export XDG_DATA_HOME="$HOME/.local/share"
       '';
-    };
-  };
-
-  wayland.windowManager.hyprland = {
-    enable = true;
-    systemd.enable = true;
-    # change monitor to high resolution, the last argument is the scale factor
-    # plugins = [
-    #   inputs.hyprland-plugins.packages.${pkgs.system}.hyprbars
-    #   # ...
-    # ];
-    settings = {
-      # "plugin:touch_gestures" = {
-      #   # The default sensitivity is probably too low on tablet screens,
-      #   # I recommend turning it up to 4.0
-      #   sensitivity = 1.0;
-
-      #   # must be >= 3
-      #   workspace_swipe_fingers = 3;
-
-      #   # switching workspaces by swiping from an edge, this is separate from workspace_swipe_fingers
-      #   # and can be used at the same time
-      #   # possible values: l, r, u, or d
-      #   # to disable it set it to anything else
-      #   workspace_swipe_edge = "l";
-
-      #   # in milliseconds
-      #   long_press_delay = 400;
-      #   bind = ",swipe:4:up, killactive";
-
-      #   experimental = {
-      #     # send proper cancel events to windows instead of hacky touch_up events,
-      #     # NOT recommended as it crashed a few times, once it's stabilized I'll make it the default
-      #     send_cancel = 0;
-      #   };
-      # };
-      exec-once =
-        [ "hyprlock" "swww init" "swww img ${Wallpaper}" "nwg-panel" ];
-      monitor = ",highres,auto,1";
-      env = [ "WLR_DRM_DEVICES,/dev/dri/card1:/dev/dri/card0" ];
-      decoration = { rounding = 10; };
-      input = {
-        kb_options = [ "caps:escape_shifted_capslock" ];
-        touchpad = {
-          natural_scroll = true;
-          disable_while_typing = true;
-        };
-      };
-      gestures = {
-        workspace_swipe = true;
-        workspace_swipe_forever = true;
-      };
-
-      # unscale XWayland
-      xwayland = { force_zero_scaling = true; };
-
-      # toolkit-specific scale
-      "$mod" = "SUPER";
-      "$shift_mod" = "SUPER_SHIFT";
-      bind = [
-        # mouse movements
-
-        # Programs
-        "$mod, Q, exit"
-        "$mod, RETURN, exec, [float; centerwindow] wezterm"
-        "$mod, W, exec, firefox"
-        "$mod, S, exec, steam"
-
-        #Window Operations
-        "$mod, X, killactive"
-        "$mod, F, togglefloating"
-        "$mod, F, resizeactive, exact 500 500"
-        "$mod, F, centerwindow"
-        "$shift_mod, SPACE, pin"
-        "$shift_mod, F, fullscreen"
-
-        "$mod, h, movefocus, l"
-        "$mod, j, movefocus, d"
-        "$mod, k, movefocus, u"
-        "$mod, l, movefocus, r"
-
-        "$shift_mod, h, movewindow, l"
-        "$shift_mod, j, movewindow, d"
-        "$shift_mod, k, movewindow, u"
-        "$shift_mod, l, movewindow, r"
-
-        #Move window to Adjascent Workplace
-        "$mod, n, movetoworkspace, r+1"
-        "$mod, b, movetoworkspace, r-1"
-        "$shift_mod, b, movetoworkspacesilent, r-1"
-        "$shift_mod, n, movetoworkspacesilent, r+1"
-
-        #Move window to specific workplace
-
-        "$shift_mod, 1, movetoworkspacesilent, 1"
-        "$shift_mod, 2, movetoworkspacesilent, 2"
-        "$shift_mod, 3, movetoworkspacesilent, 3"
-        "$shift_mod, 4, movetoworkspacesilent, 4"
-        "$shift_mod, 5, movetoworkspacesilent, 5"
-        "$shift_mod, 0, movetoworkspacesilent, 10"
-
-        #Go to specific worplace
-        "$mod, 1, workspace, 1"
-        "$mod, 2, workspace, 2"
-        "$mod, 3, workspace, 3"
-        "$mod, 4, workspace, 4"
-        "$mod, 5, workspace, 5"
-        "$mod, 0, workspace, 10"
-
-        #Window stash
-        "$mod, d, exec, nwg-drawer -o eDP-1"
-      ];
-
-      bindm = [
-        # mouse movements
-        "$mod, mouse:272, movewindow"
-        "$mod, mouse:273, resizewindow"
-        "$mod ALT, mouse:272, resizewindow"
-      ];
     };
   };
 }

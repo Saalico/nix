@@ -5,52 +5,38 @@
     description = "salico";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-      #System Base
-      bluez
-      carapace
-      clipman
-      dconf
-      firefox
-      helix
-      nushell
-      opentabletdriver
-      pciutils
-      overskride
-      wl-clipboard
+      #Comms
+      zapzap
+      webcord
 
-      #Hyprland
-      wayland
-      gtk3
-      hyprlock
-      hypridle
-      nwg-panel
-      nwg-drawer
-      wlr-randr
-      mako
-      waybar
-      swww
+      #System Base
+      carapace
+      helix
+      brave
+      nushell
+      gamescope
+      asusctl
+      supergfxctl
+      opentabletdriver
 
       #System Management/Exploration
       btop
-      r2modman
-      yazi
       zoxide
+      r2modman
 
       #Utilities
+      gamescope
+      mangohud
+      dconf2nix
       helix-gpt
       marksman
 
-      #Fonts
-
       #Productivity
-      cura
-      # orca-slicer
+      orca-slicer
       blender
-      drawing
 
       #Fun Stuff
       spotify
-      minecraft
 
       #Git n Friends
       gh
@@ -58,10 +44,12 @@
     ];
   };
   environment.systemPackages = with pkgs; [
-    udiskie
     nil
     lldb
     nixfmt
+    xdg-launch
+    xdg-terminal-exec
+    xdg-utils
     rustup
     steam
     steam-run
