@@ -1,4 +1,4 @@
-{pkgs, ...}:{
+{ pkgs, ... }: {
   users.users.salico = {
     isNormalUser = true;
     shell = pkgs.nushell;
