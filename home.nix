@@ -15,15 +15,15 @@ in {
     '')
   ];
   home.sessionVariables = {
-    EDITOR = "hx";
+    EDITOR = "hx"; 
     SHELL = "nu";
-    TERMINAL = "wezterm";
+     TERMINAL = "wezterm";
   };
   fonts.fontconfig.enable = true;
   home.pointerCursor = lib.mkForce {
-    name = "rose-pine-cursor";
     gtk.enable = true;
-    package = pkgs.rose-pine-cursor;
+    name = "Nordzy-cursors";
+    package = pkgs.nordzy-cursor-theme;
     size = 36;
   };
   gtk = {
@@ -53,62 +53,6 @@ in {
       enable = true;
       enableNushellIntegration = true;
     };
-    helix = {
-      enable = true;
-      defaultEditor = true;
-      extraPackages = [ pkgs.marksman ];
-      languages.language = [
-        {
-          name = "nix";
-          auto-format = true;
-          formatter.command = "${pkgs.nixfmt}/bin/nixfmt";
-        }
-        {
-          name = "markdown";
-          auto-format = true;
-          formatter.command = "${pkgs.marksman}/bin/marksman";
-        }
-      ];
-      settings = {
-        editor = {
-          line-number = "relative";
-          mouse = false;
-          shell = [ "nu" "exec" ];
-          cursorline = true;
-          auto-save = true;
-          color-modes = true;
-          auto-pairs = false;
-          text-width = 60;
-          soft-wrap = {
-            enable = true;
-            max-wrap = 10;
-          };
-          indent-guides = {
-            render = true;
-            skip-levels = 1;
-          };
-          cursor-shape = {
-            insert = "bar";
-            normal = "block";
-            select = "underline";
-          };
-          lsp = {
-            enable = true;
-            auto-signature-help = true;
-            display-messages = true;
-            display-inlay-hints = true;
-            snippets = true;
-
-          };
-        };
-        keys.normal = {
-          space.space = "file_picker";
-          space.w = ":w";
-          space.q = ":q";
-          esc = [ "collapse_selection" "keep_primary_selection" ];
-        };
-      };
-    };
     carapace = {
       enable = true;
       enableNushellIntegration = true;
@@ -120,12 +64,11 @@ in {
           window_close_confirmation = 'NeverPrompt',
           enable_tab_bar = false,
           front_end = "WebGpu",
-          webgpu_power_preference = "LowPower"
         }
       '';
     };
-    nushell = {
-      enable = true;
+    helix = {enable = true;};
+     nushell = { enable = true;
       configFile = {
         text = ''
           let $config = {
@@ -136,17 +79,14 @@ in {
         '';
       };
       envFile = {
-        text = ''
-          $env.PATH = ($env.PATH | split row (char esep) | append '/go')
-          $env.config = {
-            show_banner: false
-          }
-          $env.EDITOR = hx
-          $env.TERM = wezterm
-          $env.OPENAI_API_KEY = ${OPENAI_API_KEY}
-        '';
+      text =  ''
+            $env.config = {
+  show_banner: false,
+}        '';
+
       };
     };
+  
     bash = {
       enable = true;
       bashrcExtra = ''
@@ -154,4 +94,5 @@ in {
       '';
     };
   };
+
 }

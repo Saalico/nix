@@ -2,15 +2,18 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, lib, pkgs, inputs, ... }:
+{config, pkgs, ... }:
 
 {
   documentation.nixos.enable = false;
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    inputs.home-manager.nixosModules.home-manager
+   # inputs.home-manager.nixosModules.home-manager
+
   ];
 
+  # home-manager.backupFileExtension = "bakup";
+# programs.nixvim.enable = true;
   stylix.enable = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   time.timeZone = "America/Toronto";
@@ -20,9 +23,8 @@
   nixpkgs.config = { allowUnfree = true; };
 
   # Enable sound with pipewire.
-  sound.enable = true;
   security = {
-    pam.services.salico.kwallet.enable = true;
+    pam.services.salico.enableGnomeKeyring = true;
     rtkit.enable = true;
   };
 
@@ -45,10 +47,13 @@
       SuspendState=mem
     '';
   };
+  programs = {
+    dconf.enable = true;
+    steam.enable = true;
+  };
+  xdg.portal.enable = true;
   services = {
     supergfxd.enable = true;
-    desktopManager.plasma6.enable = true;
-    desktopManager.plasma6.enableQt5Integration = true;
     asusd = {
       enable = true;
       enableUserService = true;
@@ -76,6 +81,8 @@
     displayManager.autoLogin.user = "salico";
     xserver = {
       enable = true;
+      desktopManager.gnome.enable = true;
+
       excludePackages = [ pkgs.xterm ];
       displayManager.gdm.enable = true;
       wacom.enable = false;
@@ -83,6 +90,7 @@
       xkb.layout = "us";
       xkb.variant = "";
     };
+    gnome.core-shell.enable = true;
     pipewire = {
       enable = true;
       alsa.enable = true;
@@ -91,23 +99,32 @@
     };
   };
 
+ environment.gnome.excludePackages = with pkgs; [
+    baobab      # disk usage analyzer
+    cheese      # photo booth
+    eog         # image viewer
+    epiphany    # web browser
+    gedit       # text editor
+    simple-scan # document scanner
+    totem       # video player
+    yelp        # help viewer
+    evince      # document viewer
+    file-roller # archive manager
+    geary       # email client
+    seahorse    # password manager
+    gnome-tour
+
+    # these should be self explanatory
+    gnome-calculator gnome-calendar gnome-characters gnome-clocks gnome-contacts
+    gnome-font-viewer gnome-logs gnome-maps gnome-music gnome-photos gnome-screenshot
+    gnome-system-monitor gnome-weather gnome-disk-utility pkgs.gnome-connections
+  ];
+
   hardware = {
     opentabletdriver = {
       enable = true;
       daemon.enable = true;
 
-    };
-    opengl = {
-      enable = true;
-      driSupport = true;
-      driSupport32Bit = true;
-
-      extraPackages = with pkgs; [
-        intel-media-driver # LIBVA_DRIVER_NAME=iHD
-        intel-vaapi-driver # LIBVA_DRIVER_NAME=i965 (older but works better for Firefox/Chromium)
-        vaapiVdpau
-        libvdpau-va-gl
-      ];
     };
     pulseaudio.enable = false;
     bluetooth.enable = true;
@@ -127,27 +144,6 @@
         intelBusId = "PCI:0:2:0";
         nvidiaBusId = "PCI:1:0:0";
       };
-    };
-  };
-  programs = {
-    steam = {
-      enable = true;
-      remotePlay.openFirewall =
-        true; # Open ports in the firewall for Steam Remote Play
-      dedicatedServer.openFirewall =
-        true; # Open ports in the firewall for Source Dedicated Server
-      gamescopeSession.enable = true;
-    };
-    gamemode.enable = true;
-  };
-
-  environment = {
-    systemPackages = with pkgs; [ mangohud ];
-
-    sessionVariables = {
-      EDITOR = "hx";
-      VISUAL = "hx";
-      TERMINAL = "wezterm";
     };
   };
 
@@ -176,4 +172,3 @@
   system.stateVersion = "23.11"; # Did you read the comment?
   #DON'T CHANGE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
-

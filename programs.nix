@@ -6,13 +6,15 @@
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       #Comms
+      teams-for-linux
       zapzap
-      webcord
+      discord
+      helix
 
       #System Base
-      carapace
-      helix
       brave
+      chromium
+      carapace
       nushell
       gamescope
       asusctl
@@ -26,13 +28,13 @@
 
       #Utilities
       gamescope
+      pomodoro-gtk
       mangohud
       dconf2nix
-      helix-gpt
-      marksman
 
       #Productivity
       orca-slicer
+      bambu-studio
       blender
 
       #Fun Stuff
@@ -47,13 +49,12 @@
     nil
     lldb
     nixfmt
+    go
     xdg-launch
     xdg-terminal-exec
     xdg-utils
-    rustup
     steam
     steam-run
     steamPackages.steam-runtime
   ];
 }
-

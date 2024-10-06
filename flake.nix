@@ -1,7 +1,7 @@
 {
   description = "Nixos config flake";
 
-  inputs = {
+  inputs ={
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -12,6 +12,7 @@
 
   outputs = { self, nixpkgs, ... }@inputs: {
     nixosConfigurations.default = nixpkgs.lib.nixosSystem {
+      
       specialArgs = { inherit inputs; };
       modules = [
         ./programs.nix
@@ -20,16 +21,17 @@
         inputs.stylix.nixosModules.stylix
         inputs.home-manager.nixosModules.default
         {
-          programs.hyprland.enable = true;
           home-manager = {
-            extraSpecialArgs = { inherit inputs; };
-            backupFileExtension = "bakup";
+            extraSpecialArgs = {
+              inherit inputs;
+            };
+
+            backupFileExtension = "backupBugged";
             useUserPackages = true;
             users.salico = import ./home.nix;
           };
         }
       ];
     };
-  };
+    };
 }
-
