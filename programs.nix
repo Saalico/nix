@@ -5,35 +5,43 @@
     description = "salico";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
+
+      #Basics
+      brave
+      chromium
+      nushell
+      alacritty
+
       #Comms
-      teams-for-linux
       zapzap
       discord
       helix
 
-      #System Base
-      brave
-      chromium
-      carapace
-      nushell
-      gamescope
-      asusctl
-      supergfxctl
       opentabletdriver
 
       #System Management/Exploration
       btop
+      nemo
       zoxide
       r2modman
 
       #Utilities
+      mako
+      rofi
+      ironbar
+      carapace
+      overskride
       gamescope
+      nil
+      gamescope
+      hyprpaper
       pomodoro-gtk
       mangohud
       dconf2nix
 
       #Productivity
       orca-slicer
+      dolphin-emu
       bambu-studio
       blender
 
@@ -46,15 +54,15 @@
     ];
   };
   environment.systemPackages = with pkgs; [
-    nil
+      brightnessctl
+      wl-clipboard
+    clipman
     lldb
-    nixfmt
+    nixfmt-classic
     go
     xdg-launch
     xdg-terminal-exec
     xdg-utils
-    steam
-    steam-run
-    steamPackages.steam-runtime
+    greetd.regreet
   ];
 }

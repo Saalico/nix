@@ -2,20 +2,24 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{config, pkgs, ... }:
+{config, inputs, pkgs, ... }:
 
 {
   documentation.nixos.enable = false;
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
-   # inputs.home-manager.nixosModules.home-manager
+#   inputs.home-manager.nixosModules.home-manager
 
   ];
 
-  # home-manager.backupFileExtension = "bakup";
-# programs.nixvim.enable = true;
   stylix.enable = true;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  nix.settings = {
+  experimental-features = [ "nix-command" "flakes" ];
+  substituters = ["https://hyprland.cachix.org"];
+  trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
+  };
+
   time.timeZone = "America/Toronto";
   i18n.defaultLocale = "en_CA.UTF-8";
   networking.hostName = "Bay"; # Define your hostname.
@@ -24,7 +28,6 @@
 
   # Enable sound with pipewire.
   security = {
-    pam.services.salico.enableGnomeKeyring = true;
     rtkit.enable = true;
   };
 
@@ -41,31 +44,47 @@
   };
   # Configure keymap in X11
   systemd = {
-    services.supergfxd.path = [ pkgs.pciutils ];
+#    services.supergfxd.path = [ pkgs.pciutils ];
     sleep.extraConfig = ''
       HibernateDelaySec=30m
       SuspendState=mem
     '';
   };
   programs = {
-    dconf.enable = true;
     steam.enable = true;
+    hyprland = {
+      enable = true;
+      # set the flake package
+      package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+      # make sure to also set the portal package, so that they are in sync
+      portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+    };
+    regreet.enable = true;
   };
   xdg.portal.enable = true;
   services = {
-    supergfxd.enable = true;
-    asusd = {
+  #  supergfxd.enable = true;
+  #  asusd = {
+  #    enable = true;
+  #    enableUserService = true;
+  #  };
+
+    greenclip.enable = true;
+    greetd =  {
       enable = true;
-      enableUserService = true;
+      settings = {
+      default_session = {
+      command = "${pkgs.greetd.greetd}/bin/agreety --cmd Hyprland";
+      };
+      };
     };
-    power-profiles-daemon.enable = true;
     tlp = {
-      enable = false;
+      enable = true;
       settings = {
         CPU_SCALING_GOVERNOR_ON_AC = "performance";
         CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
-        CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+        CPU_ENERGY_PERF_POLICY_ON_BAT = "powersave";
         CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
 
         CPU_MIN_PERF_ON_AC = 0;
@@ -81,16 +100,12 @@
     displayManager.autoLogin.user = "salico";
     xserver = {
       enable = true;
-      desktopManager.gnome.enable = true;
-
       excludePackages = [ pkgs.xterm ];
-      displayManager.gdm.enable = true;
       wacom.enable = false;
       videoDrivers = [ "intel" "nvidia" ];
       xkb.layout = "us";
       xkb.variant = "";
     };
-    gnome.core-shell.enable = true;
     pipewire = {
       enable = true;
       alsa.enable = true;
@@ -98,27 +113,6 @@
       pulse.enable = true;
     };
   };
-
- environment.gnome.excludePackages = with pkgs; [
-    baobab      # disk usage analyzer
-    cheese      # photo booth
-    eog         # image viewer
-    epiphany    # web browser
-    gedit       # text editor
-    simple-scan # document scanner
-    totem       # video player
-    yelp        # help viewer
-    evince      # document viewer
-    file-roller # archive manager
-    geary       # email client
-    seahorse    # password manager
-    gnome-tour
-
-    # these should be self explanatory
-    gnome-calculator gnome-calendar gnome-characters gnome-clocks gnome-contacts
-    gnome-font-viewer gnome-logs gnome-maps gnome-music gnome-photos gnome-screenshot
-    gnome-system-monitor gnome-weather gnome-disk-utility pkgs.gnome-connections
-  ];
 
   hardware = {
     opentabletdriver = {
@@ -150,7 +144,7 @@
   fonts.packages = with pkgs; [
     font-awesome
     noto-fonts
-    noto-fonts-cjk
+    noto-fonts-cjk-sans
     noto-fonts-emoji
     liberation_ttf
     fira-code

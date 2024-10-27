@@ -6,7 +6,7 @@ in {
   stylix = {
     autoEnable = true;
     polarity = "dark";
-    opacity.terminal = 0.70;
+    opacity.terminal = 0.90;
     homeManagerIntegration.autoImport = true;
     homeManagerIntegration.followSystem = true;
     targets = {

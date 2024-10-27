@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, inputs, ... }:
 let OPENAI_API_KEY = import /etc/secrets/OPENAI_API_KEY;
 in {
   home.username = "salico";
@@ -17,7 +17,7 @@ in {
   home.sessionVariables = {
     EDITOR = "hx"; 
     SHELL = "nu";
-     TERMINAL = "wezterm";
+    TERMINAL = "alacritty";
   };
   fonts.fontconfig.enable = true;
   home.pointerCursor = lib.mkForce {
@@ -57,17 +57,20 @@ in {
       enable = true;
       enableNushellIntegration = true;
     };
-    wezterm = {
+    alacritty = {
       enable = true;
-      extraConfig = ''
-        return {
-          window_close_confirmation = 'NeverPrompt',
-          enable_tab_bar = false,
-          front_end = "WebGpu",
-        }
-      '';
     };
-    helix = {enable = true;};
+    helix = {
+    enable = true;
+    settings = {
+    editor = {    
+      middle-click-paste = true;
+      line-number = "relative";
+      auto-format = true;
+      auto-completion = true;
+    };    
+    };
+    };
      nushell = { enable = true;
       configFile = {
         text = ''
