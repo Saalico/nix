@@ -35,7 +35,6 @@
             ./programs.nix
             ./configuration.nix
             ./style.nix
-            ./helix.nix
             inputs.stylix.nixosModules.stylix
             inputs.nix-colors.homeManagerModules.default
             inputs.home-manager.nixosModules.default

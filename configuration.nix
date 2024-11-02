@@ -2,22 +2,23 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{config, inputs, pkgs, ... }:
+{ config, inputs, pkgs, ... }:
 
 {
-  documentation.nixos.enable = false;
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
-#   inputs.home-manager.nixosModules.home-manager
+    inputs.home-manager.nixosModules.home-manager
 
   ];
 
+  home-manager = { extraSpecialArgs = { inherit inputs; }; };
   stylix.enable = true;
 
   nix.settings = {
-  experimental-features = [ "nix-command" "flakes" ];
-  substituters = ["https://hyprland.cachix.org"];
-  trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
+    experimental-features = [ "nix-command" "flakes" ];
+    substituters = [ "https://hyprland.cachix.org" ];
+    trusted-public-keys =
+      [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
   };
 
   time.timeZone = "America/Toronto";
@@ -27,9 +28,7 @@
   nixpkgs.config = { allowUnfree = true; };
 
   # Enable sound with pipewire.
-  security = {
-    rtkit.enable = true;
-  };
+  security = { rtkit.enable = true; };
 
   # Bootloader.
   boot = {
@@ -44,7 +43,7 @@
   };
   # Configure keymap in X11
   systemd = {
-#    services.supergfxd.path = [ pkgs.pciutils ];
+    #    services.supergfxd.path = [ pkgs.pciutils ];
     sleep.extraConfig = ''
       HibernateDelaySec=30m
       SuspendState=mem
@@ -55,27 +54,29 @@
     hyprland = {
       enable = true;
       # set the flake package
-      package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+      package =
+        inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
       # make sure to also set the portal package, so that they are in sync
-      portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+      portalPackage =
+        inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
     };
     regreet.enable = true;
   };
   xdg.portal.enable = true;
   services = {
-  #  supergfxd.enable = true;
+    #  supergfxd.enable = true;
     asusd = {
       enable = true;
       enableUserService = true;
     };
 
     greenclip.enable = true;
-    greetd =  {
+    greetd = {
       enable = true;
       settings = {
-      default_session = {
-      command = "${pkgs.greetd.greetd}/bin/agreety --cmd Hyprland";
-      };
+        default_session = {
+          command = "${pkgs.greetd.greetd}/bin/agreety --cmd Hyprland";
+        };
       };
     };
     tlp = {
