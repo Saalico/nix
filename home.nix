@@ -1,7 +1,8 @@
 { lib, pkgs, config, inputs, ... }:
 let colorScheme = inputs.nix-colors.colorSchemes.everforest;
 in {
-  imports = [ inputs.nix-colors.homeManagerModules.default ./hyprland.nix ];
+  imports =
+    [ inputs.nix-colors.homeManagerModules.default ./hyprland.nix ./helix.nix ];
   home.username = "salico";
   home.homeDirectory = "/home/salico";
   home.stateVersion = "23.11"; # Please read the comment before changing.
