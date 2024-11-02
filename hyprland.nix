@@ -2,6 +2,7 @@
 let
   colorScheme = inputs.nix-colors.colorSchemes.everforest;
   startupScript = pkgs.pkgs.writeShellScriptBin "start" ''
+    ${pkgs.udiskie}/bin/udiskie &
     ${pkgs.waybar}/bin/waybar &
     ${pkgs.swww}/bin/swww init &
     sleep 1
@@ -78,7 +79,7 @@ in {
         "$mainMod, S, togglespecialworkspace, magic"
         "$mainMod SHIFT, S, movetoworkspace, special:magic"
         "$mainMod, mouse_down, workspace, e+1"
-        "$mainMod, mouse_up, workspace, e-1"
+        "$mainMod, moue_up, workspace, e-1"
       ];
       bindm = [
         "$mainMod, mouse:272, movewindow"
