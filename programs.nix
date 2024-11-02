@@ -24,6 +24,7 @@
       nemo
       zoxide
       r2modman
+      udiskie
 
       #Utilities
       asusctl

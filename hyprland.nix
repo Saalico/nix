@@ -2,7 +2,7 @@
 let
   colorScheme = inputs.nix-colors.colorSchemes.everforest;
   startupScript = pkgs.pkgs.writeShellScriptBin "start" ''
-    ${pkgs.ironbar}/bin/waybar &
+    ${pkgs.waybar}/bin/waybar &
     ${pkgs.swww}/bin/swww init &
     sleep 1
     ${pkgs.swww}/bin/swww img ${./img.jpeg} & 
