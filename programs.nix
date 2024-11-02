@@ -26,7 +26,9 @@
       r2modman
 
       #Utilities
+      asusctl
       mako
+      swww
       rofi
       ironbar
       carapace
@@ -54,8 +56,8 @@
     ];
   };
   environment.systemPackages = with pkgs; [
-      brightnessctl
-      wl-clipboard
+    brightnessctl
+    wl-clipboard
     clipman
     lldb
     nixfmt-classic

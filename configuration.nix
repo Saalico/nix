@@ -64,10 +64,10 @@
   xdg.portal.enable = true;
   services = {
   #  supergfxd.enable = true;
-  #  asusd = {
-  #    enable = true;
-  #    enableUserService = true;
-  #  };
+    asusd = {
+      enable = true;
+      enableUserService = true;
+    };
 
     greenclip.enable = true;
     greetd =  {

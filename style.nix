@@ -1,21 +1,20 @@
 { config, pkgs, ... }:
 let
-  #theme = "${pkgs.base16-schemes}/share/themes/rose-pine.yaml";
-  wallpaper = ./wallpaper.png;
+  theme = "${pkgs.base16-schemes}/share/themes/everforest.yaml";
+  wallpaper = ./wallpaper.jpeg;
 in {
   stylix = {
     autoEnable = true;
     polarity = "dark";
-    opacity.terminal = 0.90;
+    opacity.terminal = 0.9;
     homeManagerIntegration.autoImport = true;
     homeManagerIntegration.followSystem = true;
     targets = {
       plymouth.enable = true;
       gtk.enable = true;
-      gnome.enable = true;
     };
     image = wallpaper;
-    #    base16Scheme = theme;
+    base16Scheme = theme;
   };
 }
 
