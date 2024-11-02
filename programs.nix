@@ -24,7 +24,6 @@
       nemo
       zoxide
       r2modman
-      udiskie
 
       #Utilities
       asusctl
@@ -63,6 +62,7 @@
     lldb
     nixfmt-classic
     go
+    udiskie
     xdg-launch
     xdg-terminal-exec
     xdg-utils
